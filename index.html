@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <title>Currency App</title>
+
+        <style type="text/css">
+            #branch-list input.edit {
+              display: none; /* Hides input box*/
+            }
+            #branch-list .editing label {
+              display: none; /* Hides label text when .editing*/
+            }    
+            #branch-list .editing input.edit {
+              display: inline; /* Shows input text box when .editing*/
+            }    
+        </style>  
+
+    </head>
+
+
+    <body>
+        <section id="app">
+            <section id="content">
+                <div class="rTable">
+                    <div class="rTableHeading">
+                        <div class="rTableRow">
+                            <div class="rTableHead">№</div>
+                            <div class="rTableHead">Активность</div>
+                            <div class="rTableHead">Тип</div>
+                            <div class="rTableHead">Валюты</div>
+                            <div class="rTableHead">Cash In</div>
+                            <div class="rTableHead">Широта</div>
+                            <div class="rTableHead">Долгота</div>
+                            <div class="rTableHead">Номер</div>
+                            <div class="rTableHead">Город</div>
+                            <div class="rTableHead">Название</div>
+                            <div class="rTableHead">Адрес</div>
+                            <div class="rTableHead">Режим работы</div>
+                            <div class="rTableHead">Перерыв</div>
+                            <div class="rTableHead">Услуги</div>
+                            <div class="rTableHead">Клиенты</div>
+                            <div class="rTableHead">Доступ</div>
+                            <div class="rTableHead"></div>
+                        </div>
+                    </div>
+                    <div class="rTableBody" id="branch-list">
+                    </div>
+                </div>
+                <input type="button" id="add-row" value="Add row"/>
+            </section>
+        </section>
+
+        <script type="text/dust" id="branch-template">
+                <div class="rTableCell">{index}</div>
+                <div class="rTableCell">
+                    <input class="fieldCheckBox" type="checkbox" name="isActive" {#isActive} checked {/isActive}>
+                </div>
+                <div class="rTableCell">
+                    <select name="type">
+                      <option value="branch" {@eq key=type value="branch"} selected {/eq}>branch</option>
+                      <option value="atm" {@eq key=type value="atm"} selected {/eq}>atm</option>
+                      <option value="atm24" {@eq key=type value="atm24"} selected {/eq}>atm24</option>
+                      <option value="terminal" {@eq key=type value="terminal"} selected {/eq}>terminal</option>
+                    </select>
+                </div>
+                {@eq key=type value="branch"}
+                    <div class="rTableCell" > - </div>
+                    <div class="rTableCell" > - </div>
+                {:else}
+                    <div class="field rTableCell">
+                        <label>{currencies}</label>
+                        <input type="text" class="edit" name="currencies" value="{currencies}">
+                    </div>
+                    <div class="rTableCell"> 
+                        <input class="fieldCheckBox" type="checkbox" name="isCashIn" {#isCashIn} checked {/isCashIn}>
+                    </div>
+                {/eq}
+                <div class="field rTableCell">
+                    <label>{lat}</label>
+                    <input type="number" step="0.000001" class="edit" name="lat" value="{lat}">
+                </div>
+                <div class="field rTableCell">
+                    <label>{lng}</label>
+                    <input type="number" step="0.000001" class="edit" name="lng" value="{lng}">
+                </div>
+                <div class="field rTableCell">
+                    <label>{branchNumber}</label>
+                    <input type="number" class="edit" name="branchNumber" value="{branchNumber}">
+                </div>
+                <div class="field rTableCell">
+                    <label>{city}</label>
+                    <input type="text" class="edit" name="city" value="{city}">
+                </div>
+                <div class="field rTableCell">
+                    <label>{name}</label>
+                    <input type="text" class="edit" name="name" value="{name}">
+                </div>
+                <div class="field rTableCell">
+                    <label>{address}</label>
+                    <input type="text" class="edit" name="address" value="{address}">
+                </div>
+                <div class="rTableCell"> 
+                    {#schedule}
+                        {@eq key=isDayOff value="true" type="boolean"}
+                            {Name}: <input type="checkbox" name="isDayOff" {#isDayOff} checked {/isDayOff}>
+                        }
+                        {:else}
+                            {Name}: <input type="time" name="from" value="{from}"> - 
+                            <input type="time" name="to" value="{to}"><br />
+                            <input type="checkbox" name="isDayOff" {#isDayOff} checked {/isDayOff}>Without break</input>
+                        {/eq}
+                    {/schedule}
+                </div>
+                <div class="rTableCell">
+                    {@eq key=break.isWithoutBreak value="true" type="boolean"}
+                        <input type="checkbox" name="break.isWithoutBreak" {#isWithoutBreak} checked {/isWithoutBreak}>
+                    {:else}
+                        <input type="time" name="break.from" value="{break.from}"> - 
+                        <input type="time" name="break.to" value="{break.to}"><br />
+                        <input type="checkbox" name="break.isWithoutBreak" {#isWithoutBreak} checked {/isWithoutBreak}>Without break</input>
+                    {/eq}
+                </div>
+                {@eq key=type value="branch"}
+                    <div class="field rTableCell">
+                        <label>{services}</label>
+                        <input type="text" class="edit" name="services" value="{services}">
+                    </div>
+                    <div class="rTableCell">
+                        <select name="clients">
+                            <option value="physical" {@eq key=clients value="physical"} selected {/eq}>physical</option>
+                            <option value="legal" {@eq key=clients value="legal"} selected {/eq}>legal</option>
+                            <option value="both" {@eq key=clients value="both"} selected {/eq}>legal/physical</option>
+                        </select>
+                    </div>
+                    <div class="rTableCell" > - </div>
+                {:else}
+                    <div class="rTableCell" > - </div>
+                    <div class="rTableCell" > - </div>
+                    <div class="field rTableCell">
+                        <select name="access">
+                          <option value="limited" {@eq key=access value="limited"} selected {/eq}>limited</option>
+                          <option value="unlimited" {@eq key=access value="unlimited"} selected {/eq}>unlimited</option>
+                        </select>
+                    </div>
+                {/eq}
+                
+                <div class="rTableCell">
+                    <input type="button" class="save" value="Save"/>
+                    <input type="button" class="destroy" value="Destroy"/>
+                </div>
+        </script>
+
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/libs/underscope-min.js"></script>
+        <script type="text/javascript" src="js/libs/backbone-min.js"></script>
+        <!-- <script type="text/javascript" src="js/libs/backbone.localStorage-min.js"></script>  -->
+        <script type="text/javascript" src="js/libs/dust-full.min.js"></script>
+        <script type="text/javascript" src="js/libs/dust-helpers.min.js"></script>
+        <!-- <script type="text/javascript" src="js/libs/bootstrap.min.js"></script> -->
+
+        <script type="text/javascript" src="js/models/branch.js"></script>
+        <script type="text/javascript" src="js/collections/branches.js"></script>
+        <script type="text/javascript" src="js/views/branch-view.js"></script>
+        <script type="text/javascript" src="js/views/app-view.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </body>
+</html>

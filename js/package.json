@@ -1,0 +1,15 @@
+{
+  "name": "branchesinfo",
+  "description": "",
+  "version": "0.1.0",
+  "author": "Nurlan Abyken <abyken.nurlan@gmail.com>",
+  "contributors": [],
+  "engines": {
+    "node": "~0.10.22"
+  },
+  "dependencies": {
+    "backbone": "^1.3.3",
+    "dustjs-linkedin": "^2.7.3"
+  },
+  "main": "./index.js"
+}
