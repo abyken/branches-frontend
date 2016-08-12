@@ -6,6 +6,7 @@ app.AppView = Backbone.View.extend({
 		app.branchList.on('add', this.addAll, this);
 		app.branchList.on('reset', this.addAll, this);
 		app.branchList.fetch();
+		this.addSearchBar();
 	},
 	events: {
 		'click #add-row': 'initializeRow'
@@ -21,11 +22,17 @@ app.AppView = Backbone.View.extend({
 		this.$('#branch-list').html('');
 		app.branchList.each(this.addOne, this);
 	},
+	addSearchBar: function() {
+		this.$('#search-bar').html('');
+		var search = new app.Search({
+										isFetchAll: true,
+										isActive: true,
+										type: "-1"
+									});
+		var view = new app.SearchView({model: search});
+		$('#search-bar').append(view.render().el);
+	},
 	getBranchDefaultAttributes: function() {
-		return {
-					isActive: true,
-					type: "branch",
-					clients: "physical"
-				};
+		return {}
 	}
 });

@@ -5,9 +5,30 @@ app.BranchView = Backbone.View.extend({
 	template: $('#branch-template').text(),
 	render: function() {
 		var src = this.template;
+		dust.helpers.isDayChecked = function(chunk, context, bodies, params) {
+			var day = params.day,
+				days = context.stack.head.days;
+
+			for(var i=0; i<days.length; i++)
+				if(days[i].name == day){
+					chunk.render(bodies.block, context);
+					return chunk;
+
+				}
+
+			return chunk;
+		};
+
 		var compiled = dust.compile(src, 'branch-template');
 		dust.loadSource(compiled);
-		dust.render('branch-template', this.model.toJSON(), function(err, out) {
+		var context = this.model.toJSON();
+		context['currencies'] = app.currencyList.map(function(currency) {
+			return currency.toJSON();
+		});
+		context['services'] = app.serviceList.map(function(service) {
+			return service.toJSON();
+		});
+		dust.render('branch-template', context, function(err, out) {
 		      this.$el.html(out);
 		}.bind(this));
 		return this
@@ -20,10 +41,15 @@ app.BranchView = Backbone.View.extend({
 		'dblclick .field': 'edit',
 		'keypress .edit': 'updateBranch',
 		'blur .edit': 'close',
-		'click input:checkbox': 'onChecked',
+		'click .fieldCheckBox': 'onChecked',
 		'click .destroy': 'destroy',
 		'click .save': 'save',
-		'change select': 'onSelected'
+		'change .model_field': 'onModelFieldSelected',
+		'change .manytomany': 'onManyToManySelected',
+		'click .schedulecb': 'onScheduleChecked',
+		'click .scheduletm': 'onScheduleTimeChanged',
+		'click .breakcb': 'onBreakChecked',
+		'changed .breaktm': 'onBreakTimeChanged'
 	},
 
 	edit: function(event) {
@@ -39,6 +65,14 @@ app.BranchView = Backbone.View.extend({
 		this.input.focus().val(this.input.val());
 	},
 
+	onScheduleChecked: function(event) {
+		console.log("HERE");
+	},
+
+	onScheduleTimeChanged: function(event) {
+		console.log("HERE");
+	},
+
 	onChecked: function(event) {
 		data = {};
 		data[event.target.name] = !this.model[event.target.name];
@@ -46,9 +80,18 @@ app.BranchView = Backbone.View.extend({
 		this.setRowEdited(true);
 	},
 
-	onSelected: function(event) {
+	onModelFieldSelected: function(event) {
 		data = {};
 		data[event.target.name] = $(event.target).find(":selected").val();
+		this.model.update(data);
+		this.setRowEdited(true);
+	},
+
+	onManyToManySelected: function(event){
+		data = {};
+		data[event.target.name] = $(event.target).find(":selected").map(function(selectedItem){
+			return selectedItem.val();
+		});
 		this.model.update(data);
 		this.setRowEdited(true);
 	},
@@ -71,7 +114,10 @@ app.BranchView = Backbone.View.extend({
 	},
 
 	destroy: function(event) {
-		this.model.destroy();
+		this.model.destroy({
+								success: function(model) { app.branchList.resetIndexes(); this.remove() }.bind(this), 
+								error: function(err) { console.log("err", err) }.bind(this) 
+							});
 	},
 
 	save: function() {
