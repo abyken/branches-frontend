@@ -48,7 +48,7 @@ app.BranchView = Backbone.View.extend({
 		'change .manytomany': 'onManyToManySelected',
 		'click .schedulecb': 'onScheduleChecked',
 		'click .scheduletm': 'onScheduleTimeChanged',
-		'click .breakcb': 'onBreakChecked',
+		'click .breakcb': 'onBranchBreakChecked',
 		'changed .breaktm': 'onBreakTimeChanged'
 	},
 
@@ -66,11 +66,23 @@ app.BranchView = Backbone.View.extend({
 	},
 
 	onScheduleChecked: function(event) {
-		console.log("HERE");
 	},
 
 	onScheduleTimeChanged: function(event) {
-		console.log("HERE");
+	},
+
+	onBranchBreakChecked: function(event) {
+		var branchBreak = this.model.get('branchBreak');
+		branchBreak[event.target.name] = event.target.checked;
+		this.model.update({'branchBreak': branchBreak});
+		this.setRowEdited(true);
+	},
+
+	onBreakTimeChanged: function(event) {
+		var branchBreak = this.model.get('branchBreak');
+		branchBreak[event.target.name] = event.target.value;
+		this.model.update({'branchBreak': branchBreak});
+		this.setRowEdited(true);
 	},
 
 	onChecked: function(event) {
@@ -89,9 +101,15 @@ app.BranchView = Backbone.View.extend({
 
 	onManyToManySelected: function(event){
 		data = {};
-		data[event.target.name] = $(event.target).find(":selected").map(function(selectedItem){
-			return selectedItem.val();
-		});
+		var name = event.target.name;
+		data[name] = $("input[name='"+name+"']:checked").map(function(index, item) {
+			if(name == "currency")
+				return app.currencyList.get(item.value).toJSON();
+
+			if(name == "service")
+				return app.serviceList.get(item.value).toJSON();
+
+		})
 		this.model.update(data);
 		this.setRowEdited(true);
 	},
@@ -122,6 +140,9 @@ app.BranchView = Backbone.View.extend({
 
 	save: function() {
 		this.model.set("isEdited", undefined);
+		console.log(this.model.toJSON());
+		return;
+
 		this.model.save(this.model, {error: function(){ this.model.set("isEdited", true) }.bind(this), success: function()  {this.setRowEdited(false) }.bind(this) });
 	},
 

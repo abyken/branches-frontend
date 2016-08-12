@@ -38,7 +38,6 @@ app.SearchView = Backbone.View.extend({
 	},
 
 	onFieldChanged: function(event) {
-		console.log("GF");
 		var data = {};
 		data[event.target.name] = event.target.value;
 		this.model.update(data);
