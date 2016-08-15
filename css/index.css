@@ -9,3 +9,34 @@
 .rowEdited {
 	/*background: red;*/
 }
+
+.checkbox-list {
+	padding: 0;
+	list-style-type: none;
+}
+.checkbox-list li {
+    float: left;
+    border-bottom:1px solid #818a91
+}
+.checkbox-list label {
+	margin-bottom: 0;
+}
+
+.checkbox-grid {
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
+.checkbox-grid li{
+	float: left;
+	display: inline;
+}
+
+.checkbox-grid input, label {
+	display: block;
+}
+
+.checkbox-grid label {
+	margin: 0;
+}

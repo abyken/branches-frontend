@@ -9,25 +9,39 @@ app.BranchView = Backbone.View.extend({
 			var day = params.day,
 				days = context.stack.head.days;
 
-			for(var i=0; i<days.length; i++)
-				if(days[i].name == day){
-					chunk.render(bodies.block, context);
-					return chunk;
-
-				}
+			if(days.indexOf(day) !== -1){
+				chunk.render(bodies.block, context);
+				return chunk;
+			}
 
 			return chunk;
 		};
+
+		dust.helpers.getModelId = function(chunk, context, bodies, params) {
+			chunk.write(this.model.get('id'));
+			chunk.render(bodies.block, context);
+			return chunk;
+		}.bind(this);
 
 		var compiled = dust.compile(src, 'branch-template');
 		dust.loadSource(compiled);
 		var context = this.model.toJSON();
 		context['currencies'] = app.currencyList.map(function(currency) {
-			return currency.toJSON();
-		});
+			var currencyJson = currency.toJSON();
+			if(this.model.get('currency_ids').indexOf(currency.id) !== -1){
+				currencyJson.selected = true;
+			}
+			return currencyJson;
+		}.bind(this));
+
 		context['services'] = app.serviceList.map(function(service) {
-			return service.toJSON();
-		});
+			var serviceJson = service.toJSON();
+			if(this.model.get('service_ids').indexOf(service.id) !== -1){
+				serviceJson.selected = true;
+			}
+			return serviceJson;
+		}.bind(this));
+
 		dust.render('branch-template', context, function(err, out) {
 		      this.$el.html(out);
 		}.bind(this));
@@ -49,7 +63,7 @@ app.BranchView = Backbone.View.extend({
 		'click .schedulecb': 'onScheduleChecked',
 		'click .scheduletm': 'onScheduleTimeChanged',
 		'click .breakcb': 'onBranchBreakChecked',
-		'changed .breaktm': 'onBreakTimeChanged'
+		'change .breaktm': 'onBreakTimeChanged',
 	},
 
 	edit: function(event) {
@@ -66,9 +80,23 @@ app.BranchView = Backbone.View.extend({
 	},
 
 	onScheduleChecked: function(event) {
+		var name = event.target.name,
+			days = [];
+
+		$("input[name='"+name+"']:checked").each(function(index, item) {
+			days.push(item.value);
+		});
+
+		this.model.setSchedule(name.substring(0, 2), "days", days);
+		this.setRowEdited(true);
 	},
 
 	onScheduleTimeChanged: function(event) {
+		var schedule_type = event.target.name.substring(0, 2);
+			name = event.target.name.substring(3),
+			value = event.target.value;
+
+		this.model.setSchedule(schedule_type, name, value);
 	},
 
 	onBranchBreakChecked: function(event) {
@@ -86,30 +114,33 @@ app.BranchView = Backbone.View.extend({
 	},
 
 	onChecked: function(event) {
-		data = {};
+		var data = {};
 		data[event.target.name] = !this.model[event.target.name];
 		this.model.update(data);
 		this.setRowEdited(true);
 	},
 
 	onModelFieldSelected: function(event) {
-		data = {};
+		var data = {};
 		data[event.target.name] = $(event.target).find(":selected").val();
 		this.model.update(data);
 		this.setRowEdited(true);
 	},
 
 	onManyToManySelected: function(event){
-		data = {};
-		var name = event.target.name;
-		data[name] = $("input[name='"+name+"']:checked").map(function(index, item) {
-			if(name == "currency")
-				return app.currencyList.get(item.value).toJSON();
+		var name = event.target.name.split("_")[0],
+			data = {};
+			data[name] = [];
+		$("input[name='"+event.target.name+"']:checked").each(function(index, item) {
+			if(name === "currencies"){
+				data[name].push(app.currencyList.get(item.value).toJSON());
+			}
 
-			if(name == "service")
-				return app.serviceList.get(item.value).toJSON();
+			if(name === "services"){
+				data[name].push(app.serviceList.get(item.value).toJSON());
+			}
+		});
 
-		})
 		this.model.update(data);
 		this.setRowEdited(true);
 	},
@@ -140,9 +171,6 @@ app.BranchView = Backbone.View.extend({
 
 	save: function() {
 		this.model.set("isEdited", undefined);
-		console.log(this.model.toJSON());
-		return;
-
 		this.model.save(this.model, {error: function(){ this.model.set("isEdited", true) }.bind(this), success: function()  {this.setRowEdited(false) }.bind(this) });
 	},
 

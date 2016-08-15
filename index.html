@@ -51,6 +51,7 @@
 
 
     <body>
+
         <section id="app">
             <section id="content">
                 <div class="rTable">
@@ -72,13 +73,12 @@
                             <div class="rTableHead">Услуги</div>
                             <div class="rTableHead">Клиенты</div>
                             <div class="rTableHead">Доступ</div>
-                            <div class="rTableHead"></div>
+                            <div class="rTableHead"><input type="button" id="add-row" value="Добавить запись"/></div>
                         </div>
                     </div>
                     <div class="rTableHeading" id="search-bar"></div>
                     <div class="rTableBody" id="branch-list"></div>
                 </div>
-                <input type="button" id="add-row" value="Add row"/>
             </section>
         </section>
 
@@ -89,20 +89,23 @@
                 </div>
                 <div class="rTableCell">
                     <select name="type" class="model_field">
-                      <option value="BRANCH" {@eq key=type value="BRANCH"} selected {/eq}>branch</option>
-                      <option value="ATM" {@eq key=type value="ATM"} selected {/eq}>atm</option>
-                      <option value="ATM24" {@eq key=type value="ATM24"} selected {/eq}>atm24</option>
-                      <option value="TERMINAL" {@eq key=type value="TERMINAL"} selected {/eq}>terminal</option>
+                      <option value="branch" {@eq key=type value="branch"} selected {/eq}>Отделение</option>
+                      <option value="atm" {@eq key=type value="atm"} selected {/eq}>Банкомат</option>
+                      <option value="terminal" {@eq key=type value="terminal"} selected {/eq}>Терминал</option>
                     </select>
                 </div>
-                {@eq key=type value="BRANCH"}
+                {@eq key=type value="branch"}
                     <div class="rTableCell" > - </div>
                     <div class="rTableCell" > - </div>
                 {:else}
                     <div class="rTableCell">
-                        {#currencies}
-                            <input type="checkbox" class="manytomany" name="currency" value="{id}" {@eq key=selected value="true" type="boolean"} checked {/eq}>
-                        {/currencies}
+                        <ul class="checkbox-list">
+                            {#currencies}
+                                <li>
+                                    <input type="checkbox" class="manytomany" name="currencies_{@getModelId}{/getModelId}" value="{id}" {@eq key=selected value="true" type="boolean"} checked {/eq}> <label for="currencies_{@getModelId}{/getModelId}">{code}</label>
+                                </li>
+                            {/currencies}
+                        </ul>
                     </div>
                     <div class="rTableCell"> 
                         <input class="fieldCheckBox" type="checkbox" name="isCashIn" {@eq key=isCashIn value="true" type="boolean"} checked {/eq}>
@@ -134,44 +137,67 @@
                 </div>
                 <div class="rTableCell"> 
                     {#schedule}
-                        {type} <br />
-                        <input type="checkbox" class="schedulecb" name="{type}" value='MON' {@isDayChecked day="MON"} checked {/isDayChecked}>MON</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='TUE' {@isDayChecked day="TUE"} checked {/isDayChecked}>TUE</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='WED' {@isDayChecked day="WED"} checked {/isDayChecked}>WED</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='THU' {@isDayChecked day="THU"} checked {/isDayChecked}>THU</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='FRI' {@isDayChecked day="FRI"} checked {/isDayChecked}>FRI</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='SAT' {@isDayChecked day="SAT"} checked {/isDayChecked}>SAT</input>
-                        <input type="checkbox" class="schedulecb" name="{type}" value='SUN' {@isDayChecked day="SUN"} checked {/isDayChecked}>SUN</input>
-
-                        {@ne key=type value="DO"}
-                            <input type="time" class="scheduletm" name="{type}_time_from" value="{time_from}"> - 
-                            <input type="time" class="scheduletm" name="{type}_time_to" value="{time_to}">
-                            <input type="checkbox" class="schedulecb" name="isAroundTheClock">around the clock</input>
+                        {@ne key=type value="DO"}   
+                            {type_display} <br />
+                            <ul class="checkbox-grid">
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Пн</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='MON' {@isDayChecked day="MON"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Вт</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='TUE' {@isDayChecked day="TUE"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Ср</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='WED' {@isDayChecked day="WED"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Чт</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='THU' {@isDayChecked day="THU"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Пт</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='FRI' {@isDayChecked day="FRI"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Сб</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='SAT' {@isDayChecked day="SAT"} checked {/isDayChecked}> 
+                                </li>
+                                <li>
+                                    <label for="{type}_days_{@getModelId}{/getModelId}">Вс</label>
+                                    <input type="checkbox" class="schedulecb" name="{type}_days_{@getModelId}{/getModelId}" value='SUN' {@isDayChecked day="SUN"} checked {/isDayChecked}> 
+                                </li>
+                            </ul>
+                                <input type="time" class="scheduletm" name="{type}_time_from" value="{time_from}"> - 
+                                <input type="time" class="scheduletm" name="{type}_time_to" value="{time_to}">
+                            <br />
                         {/ne}
                     {/schedule}
+                    <input class="fieldCheckBox" type="checkbox" name="isAroundTheClock" {@eq key=isAroundTheClock value="true" type="boolean"} checked {/eq}>
                 </div>
                 <div class="rTableCell">
                     {#branchBreak}
-                        {@eq key=isWithoutBreak value="true" type="boolean"}
-                            <input type="checkbox" class="breakcb" name="isWithoutBreak" {@eq key=isWithoutBreak value="true" type="boolean"} checked {/eq}>
-                        {:else}
                             <input type="time" class="breaktm" name="time_from" value="{time_from}"> - 
                             <input type="time" class="breaktm" name="time_to" value="{time_to}"><br />
-                            <input type="checkbox" class="breakcb" name="isWithoutBreak" {@eq key=isWithoutBreak value="true" type="boolean"} checked {/eq}>Without break</input>
-                        {/eq}
+                            <input type="checkbox" class="breakcb" name="isWithoutBreak" {@eq key=isWithoutBreak value="true" type="boolean"} checked {/eq}>Без перерыва</input>
                     {/branchBreak}
                 </div>
-                {@eq key=type value="BRANCH"}
+                {@eq key=type value="branch"}
                     <div class="rTableCell">
-                        {#services}
-                            <input type="checkbox" class="manytomany" name="service" value="{id}" {@eq key=selected value="true" type="boolean"} checked {/eq}>{name}</input>
-                        {/services}
+                        <ul class="checkbox-list">
+                            {#services}
+                                <li>
+                                    <input type="checkbox" class="manytomany" name="services_{@getModelId}{/getModelId}" value="{id}" {@eq key=selected value="true" type="boolean"} checked {/eq}> <label for="services_{@getModelId}{/getModelId}">{name}</label>
+                                </li>
+                            {/services}
+                        </ul>
                     </div>
                     <div class="rTableCell">
                         <select name="clients" class="model_field">
-                            <option value="INDIVIDUAL" {@eq key=clients value="INDIVIDUAL"} selected {/eq}>Individual</option>
-                            <option value="CORPORATION" {@eq key=clients value="CORPORATION"} selected {/eq}>Corporation</option>
-                            <option value="BOTH" {@eq key=clients value="BOTH"} selected {/eq}>Individual/Corporation</option>
+                            <option value="INDIVIDUAL" {@eq key=clients value="INDIVIDUAL"} selected {/eq}>Физические лица</option>
+                            <option value="CORPORATION" {@eq key=clients value="CORPORATION"} selected {/eq}>Юридические лица</option>
+                            <option value="BOTH" {@eq key=clients value="BOTH"} selected {/eq}>Физические/Юридические лица</option>
                         </select>
                     </div>
                     <div class="rTableCell" > - </div>
@@ -180,15 +206,15 @@
                     <div class="rTableCell" > - </div>
                     <div class="field rTableCell">
                         <select name="access" class="model_field">
-                          <option value="LIMITED" {@eq key=access value="LIMITED"} selected {/eq}>limited</option>
-                          <option value="UNLIMITED" {@eq key=access value="UNLIMITED"} selected {/eq}>unlimited</option>
+                          <option value="LIMITED" {@eq key=access value="LIMITED"} selected {/eq}>Пропускная система</option>
+                          <option value="UNLIMITED" {@eq key=access value="UNLIMITED"} selected {/eq}>Неограничен</option>
                         </select>
                     </div>
                 {/eq}
                 
                 <div class="rTableCell">
-                    <input type="button" class="save" value="Save"/>
-                    <input type="button" class="destroy" value="Destroy"/>
+                    <input type="button" class="save" value="Сохранить"/>
+                    <input type="button" class="destroy" value="Удалить"/>
                 </div>
         </script>
 
@@ -222,17 +248,17 @@
                 <div class="rTableHead">
                     <select name="type">
                       <option value="-1">Choose</option>
-                      <option value="BRANCH" {@eq key=type value="BRANCH"} selected {/eq}>branch</option>
-                      <option value="ATM" {@eq key=type value="ATM"} selected {/eq}>atm</option>
-                      <option value="ATM24" {@eq key=type value="ATM24"} selected {/eq}>atm24</option>
-                      <option value="TERMINAL" {@eq key=type value="TERMINAL"} selected {/eq}>terminal</option>
+                      <option value="branch" {@eq key=type value="branch"} selected {/eq}>Отделение</option>
+                      <option value="atm" {@eq key=type value="atm"} selected {/eq}>Банкомат</option>
+                      <option value="atm24" {@eq key=type value="atm24"} selected {/eq}>Банкомат 24</option>
+                      <option value="terminal" {@eq key=type value="terminal"} selected {/eq}>Терминал</option>
                     </select>
                 </div>
                 {@eq key=type value="-1"}
                     <div class="rTableHead" ></div>
                     <div class="rTableHead" ></div>
                 {:else}
-                    {@eq key=type value="BRANCH"}
+                    {@eq key=type value="branch"}
                         <div class="rTableHead" ></div>
                         <div class="rTableHead" ></div>
                     {:else}
@@ -265,7 +291,7 @@
                 </div>
                 <div class="rTableHead"></div>
                 <div class="rTableHead"></div>
-                {@eq key=type value="BRANCH"}
+                {@eq key=type value="branch"}
                     <div class="rTableHead">
                         <select name="services">
                             {#services}
@@ -275,9 +301,9 @@
                     </div>
                     <div class="rTableHead">
                         <select name="clients" class="model_field">
-                            <option value="INDIVIDUAL" {@eq key=clients value="INDIVIDUAL"} selected {/eq}>Individual</option>
-                            <option value="CORPORATION" {@eq key=clients value="CORPORATION"} selected {/eq}>Corporation</option>
-                            <option value="BOTH" {@eq key=clients value="BOTH"} selected {/eq}>Individual/Corporation</option>
+                            <option value="INDIVIDUAL" {@eq key=clients value="INDIVIDUAL"} selected {/eq}>Физические лица</option>
+                            <option value="CORPORATION" {@eq key=clients value="CORPORATION"} selected {/eq}>Юридические лица</option>
+                            <option value="BOTH" {@eq key=clients value="BOTH"} selected {/eq}>Физические/Юридические лица</option>
                         </select>
                     </div>
                     <div class="rTableHead" ></div>
@@ -288,7 +314,7 @@
                 {/eq}
             {/eq}   
                 <div class="rTableHead">
-                    <input type="button" class="search" value="Search"/>
+                    <input type="button" class="search" value="Поиск"/>
                 </div>
         </script>
 

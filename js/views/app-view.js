@@ -33,6 +33,9 @@ app.AppView = Backbone.View.extend({
 		$('#search-bar').append(view.render().el);
 	},
 	getBranchDefaultAttributes: function() {
-		return {}
+		return {
+			currency_ids: [],
+			service_ids: []
+		}
 	}
 });
