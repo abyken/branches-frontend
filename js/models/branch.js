@@ -12,8 +12,30 @@ app.Branch = Backbone.Model.extend({
 		if(!this.get("isEdited"))
 			this.set("isEdited", true);
 
-		for(var key in data)
+		for(var key in data){
+			switch(key) {
+				case "currencies":
+					this.set('currencies_verbose', app.branchList.getCurrenciesVerbose(data[key]));
+					break;
+				case "services":
+					this.set('services_verbose', app.branchList.getServicesVerbose(data[key]));
+					break;
+				case "branchBreak":
+					this.set('break_verbose', app.branchList.getBreakVerbose(data[key]));
+					break;
+				case "schedule":
+					this.set('schedule_verbose', app.branchList.getScheduleVerbose(data[key], this.get('isAroundTheClock')));
+					break;
+				case "isAroundTheClock":
+					this.set('schedule_verbose', app.branchList.getScheduleVerbose(this.get('schedule'), data[key]));
+					break;
+
+				default:
+					break;
+			}
+
 			this.set(key, data[key]);
+		}
 
 	},
 

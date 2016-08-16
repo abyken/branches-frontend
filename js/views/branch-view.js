@@ -52,7 +52,12 @@ app.BranchView = Backbone.View.extend({
 		this.model.on('change', this.render, this);
 	},
 	events: {
+		'mouseup': 'closeAll',
 		'dblclick .field': 'edit',
+		'dblclick .schedule': 'editSchedule',
+		'dblclick .break': 'editBreak',
+		'dblclick .currencies': 'editCurrecies',
+		'dblclick .services': 'editServices',
 		'keypress .edit': 'updateBranch',
 		'blur .edit': 'close',
 		'click .fieldCheckBox': 'onChecked',
@@ -77,6 +82,66 @@ app.BranchView = Backbone.View.extend({
 			this.input = $(event.target).next('input');
 		}
 		this.input.focus().val(this.input.val());
+	},
+
+	editSchedule: function(event) {
+		if($(event.target).prop("tagName") === "DIV"){
+			this.schedule = $(event.target).find("#schedule");
+			this.label = $(event.target).find("#schedule_label");
+		}
+		else {
+			var parent = $(event.target).parent();
+			this.schedule = parent.find("#schedule");
+			this.label = $(event.target);
+		}
+		this.label.hide();
+		this.schedule.show();
+
+	},
+
+	editBreak: function(event) {
+		if($(event.target).prop("tagName") === "DIV"){
+			this.branchBreak = $(event.target).find("#break");
+			this.break_label = $(event.target).find("#break_label");
+		}
+		else {
+			var parent = $(event.target).parent();
+			this.branchBreak = parent.find("#break");
+			this.break_label = $(event.target);
+		}
+		this.break_label.hide();
+		this.branchBreak.show();
+
+	},
+
+	editCurrecies: function(event) {
+		if($(event.target).prop("tagName") === "DIV"){
+			this.currencies = $(event.target).find("#currencies");
+			this.currencies_label = $(event.target).find("#currencies_label");
+		}
+		else {
+			var parent = $(event.target).parent();
+			this.currencies = parent.find("#currencies");
+			this.currencies_label = $(event.target);
+		}
+		this.currencies_label.hide();
+		this.currencies.show();
+
+	},
+
+	editServices: function(event) {
+		if($(event.target).prop("tagName") === "DIV"){
+			this.services = $(event.target).find("#services");
+			this.services_label = $(event.target).find("#services_label");
+		}
+		else {
+			var parent = $(event.target).parent();
+			this.services = parent.find("#services");
+			this.services_label = $(event.target);
+		}
+		this.services_label.hide();
+		this.services.show();
+
 	},
 
 	onScheduleChecked: function(event) {
@@ -160,6 +225,60 @@ app.BranchView = Backbone.View.extend({
 	    data[input_name] = value;
 	    this.model.update(data);
 	    this.setRowEdited(true);
+	},
+
+	closeSchedule: function() {
+		this.schedule.hide();
+		this.label.show();
+	    this.setRowEdited(true);
+	},
+
+	closeBreak: function() {
+		this.branchBreak.hide();
+		this.break_label.show();
+	    this.setRowEdited(true);
+	},
+
+	closeCurrencies: function() {
+		this.currencies.hide();
+		this.currencies_label.show();
+	    this.setRowEdited(true);
+	},
+
+	closeServices: function() {
+		this.services.hide();
+		this.services_label.show();
+	    this.setRowEdited(true);
+	},
+
+	closeAll: function(event) {
+		if(this.schedule && this.label)
+			if(!this.schedule.is(event.target) && this.schedule.has(event.target).length === 0){
+				this.closeSchedule();
+				return;
+			}
+
+		if(this.branchBreak && this.break_label)
+			if(!this.branchBreak.is(event.target) && this.branchBreak.has(event.target).length === 0){
+				this.closeBreak();
+				return;
+			}
+
+		if(this.currencies && this.currencies_label)
+			if(!this.currencies.is(event.target) && this.currencies.has(event.target).length === 0){
+				this.closeCurrencies();
+				return;
+			}
+
+		if(this.services && this.services_label)
+			if(!this.services.is(event.target) && this.services.has(event.target).length === 0){
+				this.closeServices();
+				return;
+			}
+				
+		if(this.input)
+			if (!this.input.is(event.target) && this.input.has(event.target).length === 0) 
+				this.close();
 	},
 
 	destroy: function(event) {
